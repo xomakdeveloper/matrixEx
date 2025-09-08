@@ -1111,9 +1111,67 @@ do -- Load items
     Cache_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Cache_2.Size = UDim2.new(0, 100, 0, 100)
     Cache_2.Visible = false
+	
+	    Input = Instance.new("Frame")
+    Input.Name = "Input"
+    Input.Parent = Presets
+    Input.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Input.BackgroundTransparency = 1.000
+    Input.Size = UDim2.new(0, 150, 0, 20)
+
+    Outer_4 = Instance.new("ImageLabel")
+    Outer_4.Name = "Outer"
+    Outer_4.Parent = Input
+    Outer_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Outer_4.BackgroundTransparency = 1.000
+    Outer_4.Size = UDim2.new(1, 0, 1, 0)
+    Outer_4.Image = "rbxassetid://3570695787"
+    Outer_4.ImageColor3 = Color3.fromRGB(59, 59, 68)
+    Outer_4.ScaleType = Enum.ScaleType.Slice
+    Outer_4.SliceCenter = Rect.new(100, 100, 100, 100)
+    Outer_4.SliceScale = 0.050
+
+    Inner_4 = Instance.new("ImageLabel")
+    Inner_4.Name = "Inner"
+    Inner_4.Parent = Outer_4
+    Inner_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Inner_4.BackgroundTransparency = 1.000
+    Inner_4.Position = UDim2.new(0, 2, 0, 2)
+    Inner_4.Size = UDim2.new(1, -4, 1, -4)
+    Inner_4.Image = "rbxassetid://3570695787"
+    Inner_4.ImageColor3 = Color3.fromRGB(32, 59, 97)
+    Inner_4.ScaleType = Enum.ScaleType.Slice
+    Inner_4.SliceCenter = Rect.new(100, 100, 100, 100)
+    Inner_4.SliceScale = 0.050
+
+    TextBox_2 = Instance.new("TextBox")
+    TextBox_2.Name = "TextBox"
+    TextBox_2.Parent = Inner_4
+    TextBox_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextBox_2.BackgroundTransparency = 1.000
+    TextBox_2.Position = UDim2.new(0, 10, 0, 0)
+    TextBox_2.Size = UDim2.new(1, -10, 1, 0)
+    TextBox_2.Font = Enum.Font.Code
+    TextBox_2.Text = "Input"
+    TextBox_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextBox_2.TextSize = 14.000
+    TextBox_2.TextXAlignment = Enum.TextXAlignment.Left
+
+    Text_5 = Instance.new("TextLabel")
+    Text_5.Name = "Text"
+    Text_5.Parent = Input
+    Text_5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Text_5.BackgroundTransparency = 1.000
+    Text_5.Position = UDim2.new(0, 158, 0, 0)
+    Text_5.Size = UDim2.new(0, 56, 1, 0)
+    Text_5.Font = Enum.Font.Code
+    Text_5.Text = "Input"
+    Text_5.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Text_5.TextSize = 14.000
+    Text_5.TextXAlignment = Enum.TextXAlignment.Left
 end
 
-local debug = true  -- Set to false to disable debug prints
+local debug = false  -- Set to false to disable debug prints
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -1464,6 +1522,7 @@ local library = {
             rounding = 5,
             animation = 0.1,
             position = UDim2.new(0, 100, 0, 100),
+			alignment = "left",
         }).handle(options)
 
         local main = new("Main") main.Parent = ScreenGui
@@ -1488,6 +1547,7 @@ local library = {
 
         dragger.new(main)
         main:FindFirstChild("Title").Text = options.text
+		main:FindFirstChild("Title").TextXAlignment = Enum.TextXAlignment[options.alignment:lower():gsub("^%l", string.upper)]
         main.ImageColor3 = options.color
         main:FindFirstChild("Frame").BackgroundColor3 = options.color
         main.Size = UDim2.new(0, options.size.X, 0, main.Size.Y.Offset)
@@ -2489,6 +2549,108 @@ local library = {
                     end
                     self.options = folderOptions
                     self.self = folder
+                    return self
+                end
+				                function types.input(inputOptions)
+                    local self = { }
+                    self.event = event.new()
+                    self.eventBlock = false
+
+                    inputOptions = settings.new({
+                        text = "New Input",
+                        placeholder = "Input",
+                        size = 150,
+                        color = Color3.fromRGB(32, 59, 97),
+                        rounding = options.rounding,
+                        animation = options.animation,
+                    }).handle(inputOptions)
+
+                    local input = new("Input")
+                    input.Parent = items
+                    local outer = input:FindFirstChild("Outer")
+                    local inner = outer:FindFirstChild("Inner")
+                    local textBox = inner:FindFirstChild("TextBox")
+                    local textLabel = input:FindFirstChild("Text")
+
+                    outer.Size = UDim2.new(0, inputOptions.size, 0, 20)
+                    textLabel.Position = UDim2.new(0, inputOptions.size + 8, 0, 0)
+                    textLabel.Text = inputOptions.text
+                    inner.ImageColor3 = inputOptions.color
+                    outer.SliceScale = inputOptions.rounding / 100
+                    inner.SliceScale = inputOptions.rounding / 100
+                    textBox.Text = inputOptions.placeholder
+                    textBox.TextColor3 = Color3.fromRGB(178, 178, 178)
+
+                    local function updateSize()
+                        input.Size = UDim2.new(0, inputOptions.size + 8 + textLabel.TextBounds.X, 0, 20)
+                    end
+                    textLabel:GetPropertyChangedSignal("Text"):Connect(updateSize)
+                    updateSize()
+
+                    local inTextBox = false
+                    textBox.MouseEnter:Connect(function()
+                        inTextBox = true
+                    end)
+                    textBox.MouseLeave:Connect(function()
+                        inTextBox = false
+                    end)
+
+                    local currentText = ""
+                    textBox.Focused:Connect(function()
+                        if findBrowsingTopMost() == main then
+                            textBox.TextColor3 = Color3.new(1, 1, 1)
+                            if textBox.Text == inputOptions.placeholder then
+                                textBox.Text = ""
+                            end
+                        end
+                    end)
+                    textBox.FocusLost:Connect(function()
+                        textBox.TextColor3 = Color3.fromRGB(178, 178, 178)
+                        if textBox.Text == "" then
+                            textBox.Text = inputOptions.placeholder
+                        end
+                    end)
+                    textBox:GetPropertyChangedSignal("Text"):Connect(function()
+                        if textBox.Text ~= inputOptions.placeholder then
+                            currentText = textBox.Text
+                            if not self.eventBlock then
+                                self.event:Fire(currentText)
+                            end
+                        end
+                    end)
+
+                    function self.set(text)
+                        if text == "" then
+                            textBox.Text = inputOptions.placeholder
+                            textBox.TextColor3 = Color3.fromRGB(178, 178, 178)
+                        else
+                            textBox.Text = text
+                            textBox.TextColor3 = Color3.new(1, 1, 1)
+                        end
+                        currentText = text
+                        if not self.eventBlock then
+                            self.event:Fire(currentText)
+                        end
+                    end
+
+                    function self.get()
+                        return currentText
+                    end
+
+                    function self.setColor(color)
+                        inner.ImageColor3 = color
+                    end
+
+                    function self.getColor()
+                        return inner.ImageColor3
+                    end
+
+                    function self:Destroy()
+                        input:Destroy()
+                    end
+
+                    self.options = inputOptions
+                    self.self = input
                     return self
                 end
             end
